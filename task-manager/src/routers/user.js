@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
 const multer = require("multer");
 const sharp = require("sharp");
+const { sendWelocomeEmail, sendCancelEmail } = require("../emails/account");
 
 const router = new express.Router();
 const upload = multer({
@@ -30,6 +31,7 @@ router.post("/users", async (req, res, next) => {
     }
     const user = new User(req.body);
     const token = await user.generateAuthToken();
+    sendWelocomeEmail(user.email, user.name);
     res.status(201).send({ user, token });
   } catch (err) {
     res.status(400).send(err);
@@ -81,6 +83,7 @@ router.post("/users/login", async (req, res, next) => {
 router.delete("/users/me", auth, async (req, res, next) => {
   try {
     await req.user.remove();
+    sendCancelEmail(req.user.email, req.user.name);
     res.send(req.user);
   } catch (err) {
     res.status(500).send();
