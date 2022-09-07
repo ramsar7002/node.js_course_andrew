@@ -9,7 +9,6 @@ const auth = async (req, res, next) => {
       _id: decoded._id,
       "tokens.token": token,
     });
-    console.log(user);
 
     if (!user || user.tokens.length === 0) {
       throw new Error();
