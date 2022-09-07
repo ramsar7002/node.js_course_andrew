@@ -3,11 +3,10 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
 const multer = require("multer");
+const sharp = require("sharp");
 
 const router = new express.Router();
 const upload = multer({
-  dest: "images",
-
   limits: {
     fileSize: 1000000,
   },
@@ -114,13 +113,43 @@ router.post("/users/logoutall", auth, async (req, res, next) => {
 
 router.post(
   "/users/me/avatar",
+  auth,
   upload.single("avatar"),
-  (req, res, next) => {
+  async (req, res, next) => {
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+    req.user.avatar = buffer;
+    await req.user.save();
     res.send();
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
   }
 );
+
+router.delete("/users/me/avatar", auth, async (req, res, next) => {
+  try {
+    req.user.avatar = undefined;
+    await req.user.save();
+    res.send();
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
+router.get("/users/:id/avatar", async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      throw new Error();
+    }
+    res.set("Content-Type", "image/jpg");
+    res.send(user.avatar);
+  } catch (err) {
+    res.status(404).send();
+  }
+});
 
 module.exports = router;
