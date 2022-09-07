@@ -1,4 +1,5 @@
 const express = require("express");
+
 const router = express.Router();
 const Task = require("../models/task");
 const auth = require("../middleware/auth");
@@ -27,7 +28,6 @@ router.get("/tasks", auth, async (req, res, next) => {
   if (sortByArr.length === 2) {
     sort[sortByArr[0]] = sortByArr[1] === "desc" ? -1 : 1;
   }
-  console.log(sort);
 
   try {
     // const tasks = await Task.find({ owner: req.user._id });

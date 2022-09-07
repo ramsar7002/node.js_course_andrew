@@ -2,8 +2,25 @@ const express = require("express");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
+const multer = require("multer");
 
 const router = new express.Router();
+const upload = multer({
+  dest: "images",
+
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(req, file, cb) {
+    const typeOptions = ["jpg", "jpeg", "png"];
+    const fileType = file.originalname.split(".")[1];
+
+    if (!typeOptions.includes(fileType)) {
+      return cb(new Error("File must be a image"));
+    }
+    cb(undefined, true);
+  },
+});
 
 router.post("/users", async (req, res, next) => {
   try {
@@ -94,5 +111,16 @@ router.post("/users/logoutall", auth, async (req, res, next) => {
     res.status(500).send();
   }
 });
+
+router.post(
+  "/users/me/avatar",
+  upload.single("avatar"),
+  (req, res, next) => {
+    res.send();
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
 
 module.exports = router;
