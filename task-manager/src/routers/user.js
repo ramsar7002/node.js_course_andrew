@@ -9,7 +9,7 @@ const { sendWelocomeEmail, sendCancelEmail } = require("../emails/account");
 const router = new express.Router();
 const upload = multer({
   limits: {
-    fileSize: 1000000,
+    fileSize: process.env.MAX_FILE_SIZE,
   },
   fileFilter(req, file, cb) {
     const typeOptions = ["jpg", "jpeg", "png"];

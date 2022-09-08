@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minLength: 6,
+      minLength: process.env.MIN_LENGTH_PASSWORD,
       trim: true,
       validate(value) {
         if (value.toLowerCase().includes("password")) {
